@@ -1,42 +1,41 @@
 #! /bin/bash
 
-INIT=0
+ESLINT_CONF_FILE='.eslintrc.json'
 
-usage()
-{
-  echo "Usage: javascript_initializer [ -i | --init ]"
-  exit 2
-}
+yarn init
 
-PARSED_ARGUMENTS=$(getopt -a -n javascript_initializer -o i --long init -- "$@")
-VALID_ARGUMENTS=$?
-if [ "$VALID_ARGUMENTS" != "0" ]; then
-  usage
-fi
-eval set -- "$PARSED_ARGUMENTS"
+node > out_package.json <<EOF
+var data = require('./package.json');
+data.scripts = {...data.scripts};
+data.dependencies = {...data.dependencies};
+console.log(JSON.stringify(data));
+EOF
+mv out_package.json package.json
 
-while :
-do
-  case "$1" in
-    -i | --init)   INIT=1      ; shift   ;;
-    # -- means the end of the arguments; drop this, and break out of the while loop
-    --) shift; break ;;
-    # If invalid options were passed, then getopt should have reported an error,
-    # which we checked as VALID_ARGUMENTS when getopt was called...
-    *) echo "Unexpected option: $1 - this should not happen."
-       usage ;;
-  esac
-done
-
-((INIT)) && yarn init
-yarn add --dev eslint eslint-config-prettier prettier json
-read -p 'Use JSON as config file format when requested'
+yarn add --dev eslint eslint-config-prettier prettier
 yarn run eslint --init --plugin eslint-config-prettier
 rm package-lock.json
 
-yarn json -I -f .eslintrc.json -e "this.extends.push('eslint-config-prettier')"
+if [ -f ./.eslintrc.js ]
+then
+  ESLINT_CONF_FILE='.eslintrc.js'
+fi
 
-echo '{"singleQuote": true}' > .prettierrc.json
+node > out${ESLINT_CONF_FILE} <<EOF
+var data = require('./${ESLINT_CONF_FILE}');
+data.extends.push('eslint-config-prettier');
+if('${ESLINT_CONF_FILE}'==='.eslintrc.js'){
+  console.log('module.export = ' + JSON.stringify(data));
+} else {
+  console.log(JSON.stringify(data));
+}
+EOF
+mv out${ESLINT_CONF_FILE} ${ESLINT_CONF_FILE}
+
+if [ ! -e .prettier.json ]
+then
+  echo '{"singleQuote": true}' > .prettierrc.json
+fi
+
 yarn prettier --write .
-yarn remove json
 rm javascript_initializer.sh
