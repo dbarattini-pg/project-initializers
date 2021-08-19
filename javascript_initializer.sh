@@ -32,9 +32,11 @@ done
 yarn add --dev eslint eslint-config-prettier prettier json
 read -p 'Use JSON as config file format when requested'
 yarn run eslint --init --plugin eslint-config-prettier
+rm package-lock.json
 
 yarn json -I -f .eslintrc.json -e "this.extends.push('eslint-config-prettier')"
 
 echo '{"singleQuote": true}' > .prettierrc.json
 yarn prettier --write .
 yarn remove json
+rm javascript_initializer.sh
