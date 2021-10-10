@@ -41,6 +41,13 @@ console.log(JSON.stringify(data));
 EOF
 mv out_package.json package.json
 
+# customize .gitignore
+cat <<EOF >> .gitignore
+
+# eslint
+.eslintcache
+EOF
+
 # reformat all
 yarn run prettier --write .
 
