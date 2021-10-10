@@ -43,3 +43,7 @@ mv out_package.json package.json
 
 # reformat all
 yarn run prettier --write .
+
+# initialization commit
+git add .
+git commit -m 'Initialize project using React Initializer'
