@@ -26,6 +26,7 @@ const data = require('./package.json');
 data.eslintConfig.extends.push('prettier')
 console.log(JSON.stringify(data));
 EOF
+mv out_package.json package.json
 
 # add lint-staged precommit hook
 npx mrm@2 lint-staged
