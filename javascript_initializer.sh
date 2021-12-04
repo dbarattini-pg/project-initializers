@@ -51,12 +51,44 @@ EOF
 # add lint-staged precommit hook
 npx mrm@2 lint-staged
 
+# ask for development server 
+printf "What development server do you need?\n1) live-server (fe)\n2) nodemon (be)\n3) none\n"
+read DEV_SERVER
+
+# initialize a live-server project
+if [ $DEV_SERVER == '1' ]
+then
+  yarn add --dev live-server
+  echo '<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Thank You for using Javascript Initializer</h1>
+  </body>
+</html>' > index.html
+fi
+
+# initialize a nodemon project
+if [ $DEV_SERVER == '2' ]
+then
+  yarn add --dev nodemon
+  echo "console.log('Thank You for using Javascript Initializer')" > index.js
+fi
+
 # customize the package.json file
 node > out_package.json <<EOF
 const data = require('./package.json');
 data['lint-staged'] = {
   "**/*.{js,ts,jsx,tsx}": ["eslint --cache --fix", "prettier --write"],
   "**/*.{css,scss,json}": "prettier --write"
+}
+if($DEV_SERVER){
+  data['scripts']['start:dev'] = $DEV_SERVER == '1' ? 'live-server' : 'nodemon'
 }
 console.log(JSON.stringify(data));
 EOF
